@@ -17,3 +17,11 @@ Virtual Environemnt:
 2. Activate virtualenv: `.\venv\Scripts\activate` (Windows), `source venv/bin/activate` (macOS / Linux)
 3. Install packages from requirements.txt: `pip install -r requirements.txt`
 4. Copy `.env.example` to `.env` and populate variables
+
+After pip packages are installed, playright needs to be installed manually:
+
+```
+playwright install
+```
+
+This will install playright in `C:\Users\johnn\AppData\Local\ms-playwright\` (Windows)
