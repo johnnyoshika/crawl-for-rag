@@ -39,8 +39,8 @@ async def save_document(url: str, markdown: str):
         filename = "index"
     filename = f"{filename}.md"
 
-    # Save the document
-    with open(os.path.join(documents_dir, filename), "w") as f:
+    # Save with UTF-8 encoding to handle special characters
+    with open(os.path.join(documents_dir, filename), "w", encoding='utf-8') as f:
         f.write(markdown)
 
 
@@ -56,29 +56,39 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 5):
 
     # Create the crawler instance
     crawler = AsyncWebCrawler(config=browser_config)
-    await crawler.start()
 
     try:
+        await crawler.start()
+
         # Create a semaphore to limit concurrency
         semaphore = asyncio.Semaphore(max_concurrent)
 
         async def process_url(url: str):
-            async with semaphore:
-                result = await crawler.arun(
-                    url=url,
-                    config=crawl_config,
-                    session_id="session1"
-                )
-                if result.success:
-                    print(f"Successfully crawled: {url}")
-                    await save_document(url, result.markdown_v2.raw_markdown)
-                else:
-                    print(f"Failed: {url} - Error: {result.error_message}")
+            try:
+                async with semaphore:
+                    result = await crawler.arun(
+                        url=url,
+                        config=crawl_config,
+                        session_id="session1"
+                    )
+                    if result.success:
+                        print(f"Successfully crawled: {url}")
+                        await save_document(url, result.markdown_v2.raw_markdown)
+                    else:
+                        print(
+                            f"Failed to crawl: {url} - Error: {result.error_message}")
+            except Exception as e:
+                print(f"Error processing {url}: {str(e)}")
 
         # Process all URLs in parallel with limited concurrency
-        await asyncio.gather(*[process_url(url) for url in urls])
+        await asyncio.gather(*[process_url(url) for url in urls], return_exceptions=True)
+    except Exception as e:
+        print(f"Error in crawler: {str(e)}")
     finally:
-        await crawler.close()
+        try:
+            await crawler.close()
+        except Exception as e:
+            print(f"Error closing crawler: {str(e)}")
 
 
 async def main():
