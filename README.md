@@ -1,6 +1,6 @@
-# Pydantic AI + LangGraph
+# Crawl for RAG
 
-Based on https://www.youtube.com/watch?v=U6LbW2IFUQw
+Web crawler that starts with a sitemap.xml file and scrapes the pages and converts them to Markdown. Those files can then be used for RAG.
 
 ## Setup
 
@@ -25,3 +25,9 @@ playwright install
 ```
 
 This will install playright in `C:\Users\johnn\AppData\Local\ms-playwright\` (Windows)
+
+## Usage
+
+```
+python main.py
+```
